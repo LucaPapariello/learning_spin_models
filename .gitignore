@@ -1,0 +1,14 @@
+# Do not include the following #
+################################
+
+# Data files #
+Ising/configs/*
+# Exception
+!Ising/configs/info.txt
+
+# Jupyter checkpoints #
+*/.ipynb_checkpoints/*
+
+# OS generated files #
+.DS_Store
+*/.DS_Store

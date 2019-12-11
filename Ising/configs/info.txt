@@ -1,0 +1,1 @@
+This folder contains the training and test sets (configurations and labels) generated using the Python script 'create_configurations.py'.
