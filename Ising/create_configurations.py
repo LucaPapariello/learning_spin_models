@@ -2,9 +2,10 @@
 # Filename: create_configurations.py.
 
 # Description: creates Monte Carlo configurations for the Ising model. The
-# output is then saved in `labels_NxN.txt` and `configs_NxN.txt`.
-# Note that for each temperature in `labels`, there is a line of length N*N
-# in configs. theory.
+# output is then saved in the folder `configs/` as `labels_NxN.txt` and
+# `configs_NxN.txt`.
+# For each temperature in `labels_NxN.txt`, there is a line of length N*N
+# in `configs_NxN.txt`.
 
 # Authors: Luca Papariello.
 
@@ -12,65 +13,61 @@
 #-------------------------------------------------------------------------------
 
 import numpy as np
-# from collections import deque
 
-# size of the system NxN
+
+# Size of the system NxN
 N = 30
-# exchange coupling
+# Exchange coupling (ferromagnetic case)
 J=1
-# uncomment to seed random number generator
-# np.random.seed(10)
 
-# number of cluster updates to thermalize
-T_therm = 1000
+# Number of cluster updates to thermalize
+T_therm = 2000
+
 
 def initialize():
     '''
-    Initializes a random spin configuration on a square lattice
+    Initializes a random spin configuration on a square lattice.
 
-    Returns
-    -------
-    Random spin configuration with format NxNx2 where
+    Returns:
+        Random spin configuration with format NxNx2,
+        where 2 stems for XXX.
     '''
 
     return 2*np.random.randint(2, size=((N, N))) - np.ones((N,N))
+
 
 def cluster_update(configuration, T):
     '''
     Performs a cluster update following the Wolff algorithm.
 
-    Parameters
-    ----------
-    spins  :  int
-        spin configuration, dimension is NxNx2
-    T      :  double
-        temperature for the probability
+    Arguments:
+        configuration -- spin configuration; shape: NxNx2; type: int.
+        T -- temperature for the probability; type: float.
 
-    Returns
-    ---------
-    size of cluster build and flipped.
+    Returns:
+        Size of cluster build and flipped.
     '''
 
     size = 0
-    visited = np.zeros((N,N))
+    visited = np.zeros((N, N))
     cluster=[]
-    # choose random initial spin
-    i,j = np.random.randint(N, size=2)
-    cluster.append((i,j))
-    visited[i,j]=1
-    while len(cluster)>0:
-        i,j = cluster.pop() #next i,j in line
-        i_left = (i+1)%N
-        i_right = (i+N-1)%N
-        j_up = (j+1)%N
-        j_down = (N+j-1)%N
+    # Choose random initial spin
+    i, j = np.random.randint(N, size=2)
+    cluster.append((i, j))
+    visited[i, j]=1
+    while len(cluster) > 0:
+        i, j = cluster.pop()  #next i, j in line
+        i_left = (i + 1)%N
+        i_right = (i + N - 1)%N
+        j_up = (j + 1)%N
+        j_down = (N + j - 1)%N
         neighbors = [(i_left, j), (i_right, j), (i, j_up), (i, j_down)]
         for neighbor in neighbors:
-            if visited[neighbor]==0 and configuration[neighbor] == configuration[i,j] and np.random.random()< (1-np.exp(-2*J/T)):
+            if visited[neighbor]==0 and configuration[neighbor] == configuration[i,j] and np.random.random() < (1-np.exp(-2*J/T)):
                 cluster.append(neighbor)
-                visited[neighbor]=1
+                visited[neighbor] = 1
                 size += 1
-        configuration[i,j]*=-1
+        configuration[i,j] *= -1
     return size
 
 
@@ -78,11 +75,11 @@ train_configs = []
 train_labels = []
 
 # How many temperatures between a min and max value.
-num_T = 11
+num_T = 51
 min_T = 1.0
 max_T = 3.5
 
-# how many configurations per temperature
+# How many configurations per temperature
 num_conf = 50
 
 # If we want to pick `num_T` random temperatures between `min_T` and `max_T`.
@@ -94,19 +91,19 @@ for i, T in enumerate(Temps):
     configuration = initialize()
     csize = []
     # This is really an ad-hoc solution to the 'uncorrelated configurations'
-    # problem, i.e., during some thermalization, I calculate average cluster
-    # size, then update roughly enough according to this size.
+    # problem, i.e. during some thermalization, the average cluster size is
+    # calculated, then update roughly enough according to this size.
     for _ in range(T_therm):
         csize.append(cluster_update(configuration, T))
     T_A = int(N**2 / (2*np.mean(csize))) * 2 + 1
-    for i in range(num_conf*T_A):
+    for i in range(num_conf * T_A):
         cluster_update(configuration, T)
         if i%T_A == 0:
             train_configs.append(np.reshape(configuration.copy(), N**2))
             train_labels.append(T)
 
-# np.savetxt("configs/train_labels_%ix%i.txt"%(N,N), train_labels, fmt='%.2f')
-# np.savetxt("configs/train_configs_%ix%i.txt"%(N,N), train_configs,  fmt='%i')
+np.savetxt("configs/train_labels_%ix%i.txt"%(N,N), train_labels, fmt='%.3f')
+np.savetxt("configs/train_configs_%ix%i.txt"%(N,N), train_configs,  fmt='%i')
 
-np.savetxt("configs/test_labels_%ix%i.txt"%(N,N), train_labels, fmt='%.2f')
-np.savetxt("configs/test_configs_%ix%i.txt"%(N,N), train_configs,  fmt='%i')
+# np.savetxt("configs/test_labels_%ix%i.txt"%(N,N), train_labels, fmt='%.3f')
+# np.savetxt("configs/test_configs_%ix%i.txt"%(N,N), train_configs,  fmt='%i')
