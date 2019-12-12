@@ -2,9 +2,10 @@
 ################################
 
 # Data files #
-Ising/configs/*
+*/configs/*
 # Exception
-!Ising/configs/info.txt
+!*/configs/info.txt
+
 
 # Jupyter checkpoints #
 */.ipynb_checkpoints/*

@@ -2,10 +2,10 @@
 # Filename: create_configurations.py.
 
 # Description: creates Monte Carlo configurations for the Ising model. The
-# output is then saved in the folder `configs/` as `labels_NxN.txt` and
-# `configs_NxN.txt`.
-# For each temperature in `labels_NxN.txt`, there is a line of length N*N
-# in `configs_NxN.txt`.
+# output is then saved in the folder `configs/` as `train_labels_NxN.txt`,
+# `train_configs_NxN.txt`, `test_labels_NxN.txt`, and `test_configs_NxN.txt`.
+# For each temperature in `*_labels_NxN.txt`, there is a line of length N*N
+# in `*_configs_NxN.txt`.
 
 # Authors: Luca Papariello.
 
@@ -29,11 +29,10 @@ def initialize():
     Initializes a random spin configuration on a square lattice.
 
     Returns:
-        Random spin configuration with format NxNx2,
-        where 2 stems for XXX.
+        Random spin configuration with format NxN.
     '''
 
-    return 2*np.random.randint(2, size=((N, N))) - np.ones((N,N))
+    return 2*np.random.randint(2, size=((N, N))) - np.ones((N, N))
 
 
 def cluster_update(configuration, T):
@@ -41,7 +40,7 @@ def cluster_update(configuration, T):
     Performs a cluster update following the Wolff algorithm.
 
     Arguments:
-        configuration -- spin configuration; shape: NxNx2; type: int.
+        configuration -- spin configuration; shape: NxN; type: (int, int).
         T -- temperature for the probability; type: float.
 
     Returns:
@@ -102,8 +101,10 @@ for i, T in enumerate(Temps):
             train_configs.append(np.reshape(configuration.copy(), N**2))
             train_labels.append(T)
 
+# Training set
 np.savetxt("configs/train_labels_%ix%i.txt"%(N,N), train_labels, fmt='%.3f')
 np.savetxt("configs/train_configs_%ix%i.txt"%(N,N), train_configs,  fmt='%i')
 
+# Test set
 # np.savetxt("configs/test_labels_%ix%i.txt"%(N,N), train_labels, fmt='%.3f')
 # np.savetxt("configs/test_configs_%ix%i.txt"%(N,N), train_configs,  fmt='%i')
