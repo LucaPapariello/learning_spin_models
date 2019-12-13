@@ -7,6 +7,8 @@ This repository contains code to apply some machine learning (ML) techniques to 
 * the Ising model
 * the Ising lattice gauge theory.
 
+The goal is to show ML applications in physics from the point of view of a physicist. We will hence keep the ML part (neural network architecture, regularisation techniques, etc.) very basic, without aiming for high performance or accuracy.
+
 ### Structure of the repository
 
 The two models are divided into the two homonymous folders, i.e. `/Ising`, and `/lattice_gauge_theory`. In both of them, the Python script `create_configurations.py` generates (Monte Carlo) samples for the corresponding model and stores them in the `/configs` folder. These spin configurations are the synthetic data used to train the ML models &mdash; this is done in the corresponding Jupyter notebooks.
